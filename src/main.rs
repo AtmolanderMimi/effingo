@@ -1,5 +1,5 @@
-use effingo::config::Config;
-use effingo::copy_directory;
+pub use effingo;
+use effingo::{config::Config, copy_manager::CopyManager};
 
 use std::env;
 
@@ -7,6 +7,9 @@ fn main() {
     let config = Config::build_from_args(&env::args().collect::<Vec<String>>())
         .expect("Missing arguements");
 
-    copy_directory(&config.directory_to_copy.to_str().unwrap(), &config.target_directory.to_str().unwrap())
-        .unwrap();
+    let copy_manager = CopyManager::new(config);
+    match copy_manager.run() {
+        Ok(_) => (),
+        Err(e) => eprintln!("{}", e),
+    }
 }

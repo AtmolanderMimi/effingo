@@ -1,6 +1,6 @@
 # Effingo
 
-a command line tool for making backups that make sure that the contents of shortcuts are kept with the backup.
+a command line tool for making backups that make sure that the contents of shortcuts are kept with the backup. Based on the word copy in latin.
 
 Started 2023-06-17
 
