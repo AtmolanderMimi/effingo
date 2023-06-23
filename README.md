@@ -9,7 +9,7 @@ Started 2023-06-17
 Simply use the effingo command and provide it with the `directory to copy` and `the place to copy`:
 
 ```text
-C:\Users\Admin> effingo ./backup_dir D:\
+C:\Users\Admin> effingo <path> <path>
                         copied -> target
 ```
 
