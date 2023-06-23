@@ -5,7 +5,6 @@ use crate::config::Config;
 use std::ffi::OsStr;
 use std::fs;
 use std::error::Error;
-use std::io::Error as IoError;
 use std::path::PathBuf;
 
 /// Handles all the copying
