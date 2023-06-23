@@ -2,6 +2,7 @@ use crate::config::Config;
 
 use std::fs;
 use std::error::Error;
+use std::io::Error as IoError;
 
 pub struct CopyManager {
     config: Config,
@@ -21,6 +22,11 @@ impl CopyManager {
     }
 
     fn copy_directory(&self, path: &str, target: &str) -> Result<(), Box<dyn Error>> {
+
+        match fs::create_dir(target) {
+            Ok(()) => println!("Directory '{}' doesn't exist. It has been created", target),
+            Err(_) => println!("Directory '{}' already exists", target),
+        };
         for entry in fs::read_dir(path)? {
             let entry = entry?;
             let path = entry.path();
@@ -28,7 +34,6 @@ impl CopyManager {
             let target_path = format!("{}\\{}", target, entry_name.to_string_lossy());
     
             if path.is_dir() {
-                fs::create_dir(&target_path).unwrap();
                 self.copy_directory(&path.to_string_lossy(), &target_path)?;
             } else if path.is_file() {
                 fs::copy(path, target_path)?;
@@ -42,7 +47,7 @@ impl CopyManager {
         Ok(())
     }
 
-    fn copy_link(&self, _path: &str) {
+    fn copy_link(&self, path: &str) {
         todo!("Funny .lnk file")
     }
 }
