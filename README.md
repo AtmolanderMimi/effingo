@@ -14,4 +14,5 @@ C:\Users\Admin> effingo ./backup_dir D:\
 ```
 
 ## Limitations
-Entries that are named using unexpected characters such as: letters with accents, symbols and others will make the program panic.
+* Entries that are named using unexpected characters such as: letters with accents, symbols and others will make the program panic.
+* If the target directory already contains an entry of the same name as one that is copying the program will run into an error
