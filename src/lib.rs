@@ -13,3 +13,4 @@
 
 pub mod config;
 pub mod copy_manager;
+pub mod waiting_animation;

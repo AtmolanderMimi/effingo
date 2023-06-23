@@ -12,3 +12,6 @@ Simply use the effingo command and provide it with the `directory to copy` and 
 C:\Users\Admin> effingo ./backup_dir D:\
                         copied -> target
 ```
+
+## Limitations
+Entries that are named using unexpected characters such as: letters with accents, symbols and others will make the program panic.
