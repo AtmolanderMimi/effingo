@@ -54,10 +54,8 @@ impl CopyManager {
             if path.is_dir() {
                 self.copy_directory(&path.to_string_lossy(), &target_path, inside_link)?;
             } else if is_link && !inside_link {
-                println!("Called");
                 self.copy_link(&path.to_string_lossy(), &target_path)?;
             } else if is_link && inside_link {
-                println!("Not called");
                 fs::copy(path, target_path)?;
             } else if path.is_file() {
                 fs::copy(path, target_path)?;
@@ -74,10 +72,10 @@ impl CopyManager {
 
         // I'll use unwrap because lnk::Error doesn't implement std::error::Error :facepalm:
         // AND the the path to the refered file is in a private field and there is no getter
-        let refered_entry_path = dbg!(ShellLink::open(link_path.clone()).unwrap()
+        let refered_entry_path = ShellLink::open(link_path.clone()).unwrap()
             .link_info()
             .clone().unwrap()
-            .local_base_path())
+            .local_base_path()
             .clone()
             .unwrap();
 
@@ -86,7 +84,7 @@ impl CopyManager {
         let target_path = format!("{}\\{}", target, refered_entry_name.to_string_lossy());
 
         if refered_entry.is_dir() {
-            self.copy_directory(dbg!(&refered_entry.to_string_lossy()), dbg!(&target_path), true)?;
+            self.copy_directory(&refered_entry.to_string_lossy(), &target_path, true)?;
         } else if refered_entry.is_file() || refered_entry.is_symlink() {
             fs::copy(refered_entry.to_string_lossy().to_string(), target_path)?;
         } else {
