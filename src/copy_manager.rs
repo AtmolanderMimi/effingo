@@ -69,7 +69,6 @@ impl CopyManager {
         let link_path = PathBuf::from(link_path);
 
         // I'll use unwrap because lnk::Error doesn't implement std::error::Error :facepalm:
-        // AND the the path to the refered file is in a private field and there is no getter
         let refered_entry_path = ShellLink::open(link_path.clone()).unwrap()
             .link_info()
             .clone().unwrap()
