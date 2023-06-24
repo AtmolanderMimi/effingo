@@ -10,7 +10,7 @@ Simply use the effingo command and provide it with the `directory to copy` and 
 
 ```text
 C:\Users\Admin> effingo <copy_dir> <target_dir>
-                        copied -> target
+                          copied  ->  target
 ```
 
 Think of it like the copy_dir is a blueprint that references directories and
@@ -19,5 +19,5 @@ So that we you have to create a backup, you won't need to suffle around to be
 sure you have backed up all you want.
 
 ## Limitations
-* Entries that are named using unexpected characters such as: letters with accents, symbols and others will make the program panic.
-* If the target directory already contains an entry of the same name as one that is copying the program will run into an error.
+* Shortcuts (`.lnk` files) pointing to entries using unexpected characters such as: letters with accents, symbols and others will not be copied.
+* If the target directory already contains an entry of the same name as one that is being copied the program will run into an error.
