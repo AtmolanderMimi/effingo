@@ -8,7 +8,6 @@ edition = "2021"
 [dependencies]
 # I have a bad feeling about this librairy :)
 # "the trait `std::error::Error` is not implemented for `lnk::Error`"
-rayon = "*"
 lnk = "0.5.1"
 
 # Based on tips at https://nnethercote.github.io/perf-book/build-configuration.html
