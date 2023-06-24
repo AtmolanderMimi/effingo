@@ -6,6 +6,6 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-# I have a bad feeling about this librairy
+# I have a bad feeling about this librairy :)
 # "the trait `std::error::Error` is not implemented for `lnk::Error`"
 lnk = "0.5.1"
