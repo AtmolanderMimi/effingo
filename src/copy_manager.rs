@@ -35,7 +35,6 @@ impl CopyManager {
     }
 
     fn copy_directory(&self, path: &str, target: &str, inside_link: bool) -> Result<(), Box<dyn Error>> {
-
         let _ = fs::create_dir(target);
 
         for entry in fs::read_dir(path)? {
