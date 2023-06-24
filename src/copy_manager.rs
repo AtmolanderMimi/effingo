@@ -59,7 +59,7 @@ impl CopyManager {
             } else if path.is_file() {
                 fs::copy(path, target_path)?;
             } else {
-                panic!("Unrecognised element at {}", path.to_string_lossy());
+                eprintln!("Unrecognised element at {}", path.to_string_lossy());
             }
         }
     
@@ -87,7 +87,7 @@ impl CopyManager {
         } else if refered_entry.is_file() || refered_entry.is_symlink() {
             fs::copy(refered_entry.to_string_lossy().to_string(), target_path)?;
         } else {
-            panic!("Link points to unrecognised element {}", refered_entry.to_string_lossy());
+            eprintln!("Link points to unrecognised element {}", refered_entry.to_string_lossy());
         }
 
         Ok(())
