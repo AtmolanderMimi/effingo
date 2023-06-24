@@ -30,4 +30,4 @@ sure you have backed up all you want.
 * Shortcuts (`.lnk` files) pointing to entries using unexpected characters such as: letters with accents, symbols and others will not be copied.
 * If the target directory already contains an entry of the same name as one that is being copied the program will run into an error.
 * Functionality on operating systems other then Windows 10 is not tested
-* Shortcut (`.lnk` file) copy depth is only of 1 to prevent an infinite loop (if a `.lnk` points to a directory containing another `.lnk` the file the `.lnk` is refering to will not be copied)
+* Shortcut (`.lnk` file) copy depth is only of 1 to prevent an infinite loop (if a `.lnk` points to a directory containing another `.lnk` the file the `.lnk` is referring to will not be copied)
