@@ -10,8 +10,15 @@ use std::path::PathBuf;
 /// Handles all the copying
 /// 
 /// # Usage
-/// ```
-/// let copy_manager = CopyManager::new(Config::build_from_args(env::args()));
+/// ```ignore
+/// use effingo::{CopyManager, Config};
+/// 
+/// let config = match Config::build_from_args(&vec!["".to_string(), "C:/".to_string(), "D:/".to_string()]) {
+///     Some(cm) => cm,
+///     None => panic!("Arguments are not sufficient"),
+/// };
+/// 
+/// let copy_manager = CopyManager::new(config);
 /// copy_manager.run();
 /// ```
 pub struct CopyManager {
@@ -50,6 +57,7 @@ impl CopyManager {
             };
     
             if path.is_dir() {
+                dbg!("Copying dir: {path}");
                 self.copy_directory(&path.to_string_lossy(), &target_path, inside_link)?;
             } else if is_link && !inside_link {
                 self.copy_link(&path.to_string_lossy(), &target_path)?;
