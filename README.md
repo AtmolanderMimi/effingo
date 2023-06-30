@@ -21,6 +21,8 @@ C:\Users\Admin\effingo> cargo run -- <copy_dir> <target_dir>
                                        copied  ->  target
 ```
 
+Effingo will copy all the files and directories within the `copy_dir` and will also add the files/directories that the links are pointing to.
+
 Think of it like the copy_dir is a blueprint that references directories and
 other files in your file system in one place through shortcuts (`.lnk` files).
 So that we you have to create a backup, you won't need to suffle around to be
