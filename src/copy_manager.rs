@@ -44,21 +44,21 @@ impl CopyManager {
 
             let is_lnk = path.extension().unwrap_or(&OsStr::new("")) == "lnk";
             let is_symlink = path.is_symlink();
-            let is_link = is_lnk || is_symlink;
 
-            let target_path = match is_link && !inside_link {
+            // I don't know why; I don't know if I should;
+            // But I do it anyway because it works
+            let target_path = match is_lnk && !inside_link {
                 true => target.to_string(),
                 false => format!("{}/{}", target, entry_name.to_string_lossy()),
             };
     
             if path.is_dir() {
-                self.copy_directory(&path.to_string_lossy(), &target_path, inside_link)?;
+                // Since symlinks act as normal directories/folders I added the or operation to the inside_link
+                self.copy_directory(&path.to_string_lossy(), &target_path, inside_link || is_symlink)?;
+            } else if is_lnk && inside_link {
+                fs::copy(path, target_path)?;
             } else if is_lnk && !inside_link {
                 self.copy_lnk(&path.to_string_lossy(), &target_path)?;
-            } else if is_symlink && !inside_link {
-                self.copy_symlink(&path.to_string_lossy(), &target_path)?;
-            } else if is_link && inside_link {
-                fs::copy(path, target_path)?;
             } else if path.is_file() {
                 fs::copy(path, target_path)?;
             } else {
@@ -95,7 +95,8 @@ impl CopyManager {
         Ok(())
     }
 
-    fn copy_symlink(&self, link_path: &str, target: &str) -> Result<(), Box<dyn Error>> {
+    // Since symbiotic links act as normal directories/files this is not needed
+    fn _copy_symlink(&self, link_path: &str, target: &str) -> Result<(), Box<dyn Error>> {
         let link_path = PathBuf::from(link_path);
 
         // I'll use unwrap because lnk::Error doesn't implement std::error::Error :facepalm:
