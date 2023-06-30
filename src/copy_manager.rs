@@ -43,7 +43,9 @@ impl CopyManager {
             let path = entry.path();
             let entry_name = path.file_name().unwrap();
 
-            let is_link = path.extension().unwrap_or(&OsStr::new("")) == "lnk";
+            let is_lnk = path.extension().unwrap_or(&OsStr::new("")) == "lnk";
+            let is_symlink = path.is_symlink();
+            let is_link = is_lnk || is_symlink;
 
             let target_path = match is_link && !inside_link {
                 true => target.to_string(),
@@ -52,8 +54,10 @@ impl CopyManager {
     
             if path.is_dir() {
                 self.copy_directory(&path.to_string_lossy(), &target_path, inside_link)?;
-            } else if is_link && !inside_link {
-                self.copy_link(&path.to_string_lossy(), &target_path)?;
+            } else if is_lnk && !inside_link {
+                self.copy_lnk(&path.to_string_lossy(), &target_path)?;
+            } else if is_symlink && !inside_link {
+                self.copy_symlink(&path.to_string_lossy(), &target_path)?;
             } else if is_link && inside_link {
                 fs::copy(path, target_path)?;
             } else if path.is_file() {
@@ -66,28 +70,48 @@ impl CopyManager {
         Ok(())
     }
 
-    fn copy_link(&self, link_path: &str, target: &str) -> Result<(), Box<dyn Error>> {
+    fn copy_lnk(&self, link_path: &str, target: &str) -> Result<(), Box<dyn Error>> {
         let link_path = PathBuf::from(link_path);
 
         // I'll use unwrap because lnk::Error doesn't implement std::error::Error :facepalm:
-        // AND the the path to the refered file is in a private field and there is no getter
-        let refered_entry_path = ShellLink::open(link_path.clone()).unwrap()
+        let referred_entry_path = ShellLink::open(link_path.clone()).unwrap()
             .link_info()
             .clone().unwrap()
             .local_base_path()
             .clone()
             .unwrap();
 
-        let refered_entry = PathBuf::from(refered_entry_path);
-        let refered_entry_name = refered_entry.file_name().unwrap();
-        let target_path = format!("{}\\{}", target, refered_entry_name.to_string_lossy());
+        let referred_entry = PathBuf::from(referred_entry_path);
+        let referred_entry_name = referred_entry.file_name().unwrap();
+        let target_path = format!("{}\\{}", target, referred_entry_name.to_string_lossy());
 
-        if refered_entry.is_dir() {
-            self.copy_directory(&refered_entry.to_string_lossy(), &target_path, true)?;
-        } else if refered_entry.is_file() || refered_entry.is_symlink() {
-            fs::copy(refered_entry.to_string_lossy().to_string(), target_path)?;
+        if referred_entry.is_dir() {
+            self.copy_directory(&referred_entry.to_string_lossy(), &target_path, true)?;
+        } else if referred_entry.is_file() || referred_entry.is_symlink() {
+            fs::copy(referred_entry.to_string_lossy().to_string(), target_path)?;
         } else {
-            eprintln!("Link points to unrecognised element {}", refered_entry.to_string_lossy());
+            eprintln!("Shortcut (.lnk) points to unrecognised element {}", referred_entry.to_string_lossy());
+        }
+
+        Ok(())
+    }
+
+    fn copy_symlink(&self, link_path: &str, target: &str) -> Result<(), Box<dyn Error>> {
+        let link_path = PathBuf::from(link_path);
+
+        // I'll use unwrap because lnk::Error doesn't implement std::error::Error :facepalm:
+        let link_path = PathBuf::from(link_path);
+
+        let referred_entry = PathBuf::from(link_path.read_link()?);
+        let referred_entry_name = referred_entry.file_name().unwrap();
+        let target_path = format!("{}\\{}", target, referred_entry_name.to_string_lossy());
+
+        if referred_entry.is_dir() {
+            self.copy_directory(&referred_entry.to_string_lossy(), &target_path, true)?;
+        } else if referred_entry.is_file() || referred_entry.is_symlink() {
+            fs::copy(referred_entry.to_string_lossy().to_string(), target_path)?;
+        } else {
+            eprintln!("Symbiotic link points to unrecognised element {}", referred_entry.to_string_lossy());
         }
 
         Ok(())
