@@ -35,7 +35,6 @@ impl CopyManager {
     }
 
     fn copy_directory(&self, path: &str, target: &str, inside_link: bool) -> Result<(), Box<dyn Error>> {
-
         let _ = fs::create_dir(target);
 
         for entry in fs::read_dir(path)? {
@@ -49,7 +48,7 @@ impl CopyManager {
 
             let target_path = match is_link && !inside_link {
                 true => target.to_string(),
-                false => format!("{}\\{}", target, entry_name.to_string_lossy()),
+                false => format!("{}/{}", target, entry_name.to_string_lossy()),
             };
     
             if path.is_dir() {
@@ -83,7 +82,7 @@ impl CopyManager {
 
         let referred_entry = PathBuf::from(referred_entry_path);
         let referred_entry_name = referred_entry.file_name().unwrap();
-        let target_path = format!("{}\\{}", target, referred_entry_name.to_string_lossy());
+        let target_path = format!("{}/{}", target, referred_entry_name.to_string_lossy());
 
         if referred_entry.is_dir() {
             self.copy_directory(&referred_entry.to_string_lossy(), &target_path, true)?;
@@ -104,7 +103,7 @@ impl CopyManager {
 
         let referred_entry = PathBuf::from(link_path.read_link()?);
         let referred_entry_name = referred_entry.file_name().unwrap();
-        let target_path = format!("{}\\{}", target, referred_entry_name.to_string_lossy());
+        let target_path = format!("{}/{}", target, referred_entry_name.to_string_lossy());
 
         if referred_entry.is_dir() {
             self.copy_directory(&referred_entry.to_string_lossy(), &target_path, true)?;
