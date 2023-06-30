@@ -14,3 +14,7 @@
 pub mod config;
 pub mod copy_manager;
 pub mod waiting_animation;
+
+pub use config::Config;
+pub use copy_manager::CopyManager;
+pub use waiting_animation::make_animation_thread;

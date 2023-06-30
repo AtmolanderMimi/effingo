@@ -10,8 +10,15 @@ use std::path::PathBuf;
 /// Handles all the copying
 /// 
 /// # Usage
-/// ```
-/// let copy_manager = CopyManager::new(Config::build_from_args(env::args()));
+/// ```ignore
+/// use effingo::{CopyManager, Config};
+/// 
+/// let config = match Config::build_from_args(&vec!["".to_string(), "C:/".to_string(), "D:/".to_string()]) {
+///     Some(cm) => cm,
+///     None => panic!("Arguments are not sufficient"),
+/// };
+/// 
+/// let copy_manager = CopyManager::new(config);
 /// copy_manager.run();
 /// ```
 pub struct CopyManager {
