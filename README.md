@@ -32,5 +32,5 @@ sure you have backed up all you want.
 ## Known Limitations
 * Links pointing to entries using unexpected characters such as: letters with accents, symbols and others will not be copied.
 * If the target directory already contains an entry of the same name as one that is being copied the program will run into an error.
-* Functionality on operating systems other then Windows 10 and Linux is not tested
+* Functionality on operating systems other than Windows 10 and Linux is not tested
 * Link copy depth is only of 1 to prevent an infinite loop (if a link points to a directory containing another link the file the link is referring to will not be copied)
