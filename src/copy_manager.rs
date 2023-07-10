@@ -59,7 +59,8 @@ impl CopyManager {
                 false => format!("{}/{}", target, entry_name.to_string_lossy()),
             };
     
-            if path.is_dir() {
+            // Catches recusive directory symbiotic links
+            if path.is_dir() && !(is_symlink && inside_link) {
                 // Since symlinks act as normal directories/folders I added the or operation to the inside_link
                 self.copy_directory(&path.to_string_lossy(), &target_path, inside_link || is_symlink)?;
             } else if is_lnk && inside_link {
@@ -68,6 +69,8 @@ impl CopyManager {
                 self.copy_lnk(&path.to_string_lossy(), &target_path)?;
             } else if path.is_file() {
                 fs::copy(path, target_path)?;
+            } else if is_symlink {
+                eprintln!("Skipped symbiotic link at {}", path.to_string_lossy());
             } else {
                 eprintln!("Unrecognised element at {}", path.to_string_lossy());
             }
