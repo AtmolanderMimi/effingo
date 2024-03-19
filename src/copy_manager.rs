@@ -36,12 +36,17 @@ impl CopyManager {
 impl CopyManager {
     pub fn run(&self) -> Result<(), Box<dyn Error>>{
         self.copy_directory(
-            &self.config.directory_to_copy.to_string_lossy(),
-            &self.config.target_directory.to_string_lossy(),
+            &self.config.r#in,
+            &self.config.out,
             false)
     }
 
-    fn copy_directory(&self, path: &str, target: &str, inside_link: bool) -> Result<(), Box<dyn Error>> {
+    fn copy_directory(&self, path: &str, target: &str, mut inside_link: bool) -> Result<(), Box<dyn Error>> {
+        // Kinda hacky, but it works
+        if !self.config.no_recursive {
+            inside_link = false;
+        }
+
         let _ = fs::create_dir(target);
 
         for entry in fs::read_dir(path)? {
@@ -99,7 +104,7 @@ impl CopyManager {
         } else if referred_entry.is_file() || referred_entry.is_symlink() {
             fs::copy(referred_entry.to_string_lossy().to_string(), target_path)?;
         } else {
-            eprintln!("Shortcut (.lnk) points to unrecognised element {}", referred_entry.to_string_lossy());
+            eprintln!("Shortcut {} points to unrecognised element {}", link_path.to_string_lossy(), referred_entry.to_string_lossy());
         }
 
         Ok(())
