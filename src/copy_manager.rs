@@ -1,6 +1,7 @@
 use lnk::ShellLink;
 
 use crate::config::Config;
+use crate::LnkError;
 
 use std::ffi::OsStr;
 use std::fs;
@@ -71,7 +72,8 @@ impl CopyManager {
             } else if is_lnk && inside_link {
                 fs::copy(path, target_path)?;
             } else if is_lnk && !inside_link {
-                self.copy_lnk(&path.to_string_lossy(), &target_path)?;
+                self.copy_lnk(&path.to_string_lossy(), &target_path)
+                    .unwrap_or_else(|e| eprint!("Error while copying link contents for {}: {:?}", path.to_string_lossy(), e));
             } else if path.is_file() {
                 fs::copy(path, target_path)?;
             } else if is_symlink {
@@ -88,12 +90,20 @@ impl CopyManager {
         let link_path = PathBuf::from(link_path);
 
         // I'll use unwrap because lnk::Error doesn't implement std::error::Error :facepalm:
-        let referred_entry_path = ShellLink::open(link_path.clone()).unwrap()
-            .link_info()
-            .clone().unwrap()
-            .local_base_path()
+        let referred_entry_path = {
+            let shl_link = match ShellLink::open(link_path.clone()) {
+                Ok(s) => s,
+                Err(e) => return Err(Box::new(LnkError::Container(e)))
+            };
+
+            let lnk_info = match shl_link.link_info().clone() {
+                Some(s) => s,
+                None => return Err(Box::new(LnkError::Description("No .lnk info".to_string())))
+            };
+            lnk_info.local_base_path()
             .clone()
-            .unwrap();
+            .unwrap()
+        };
 
         let referred_entry = PathBuf::from(referred_entry_path);
         let referred_entry_name = referred_entry.file_name().unwrap();
