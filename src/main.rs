@@ -1,13 +1,11 @@
+use clap::Parser;
 pub use effingo;
 use effingo::config::Config;
 use effingo::copy_manager::CopyManager;
 use effingo::waiting_animation;
 
-use std::env;
-
 fn main() {
-    let config = Config::build_from_args(&env::args().collect::<Vec<String>>())
-        .expect("Missing arguements");
+    let config = Config::parse();
 
     waiting_animation::make_animation_thread();
 

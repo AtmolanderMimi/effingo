@@ -12,13 +12,13 @@ Started 2023-06-17
 
 Simply use the effingo command and provide it with the `directory to copy` and `the path to copy to`:
 ```text
-C:\Users\Admin> effingo <copy_dir> <target_dir>
+C:\Users\Admin> effingo -i <copy_dir> -o <target_dir>
 copied -> target
 ```
 
 If you are compiling:
 ```text
-C:\Users\Admin\effingo> cargo run -- <copy_dir> <target_dir>
+C:\Users\Admin\effingo> cargo run -- -i <copy_dir> -o <target_dir>
 copied -> target
 ```
 
@@ -33,4 +33,4 @@ sure you have backed up all you want.
 * Links pointing to entries using unexpected characters such as: letters with accents, symbols and others will not be copied.
 * If the target directory already contains an entry of the same name as one that is being copied the program will run into an error.
 * Functionality on operating systems other than Windows 10 and Linux is not tested
-* Link copy depth is only of 1 to prevent an infinite loop (if a link points to a directory containing another link the file the link is referring to will not be copied)
+* Link copy depth is not limited, possibly creating an infinite loop. (Use --no-recursion)

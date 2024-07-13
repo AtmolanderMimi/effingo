@@ -1,6 +1,7 @@
 use lnk::ShellLink;
 
 use crate::config::Config;
+use crate::LnkError;
 
 use std::ffi::OsStr;
 use std::fs;
@@ -36,12 +37,17 @@ impl CopyManager {
 impl CopyManager {
     pub fn run(&self) -> Result<(), Box<dyn Error>>{
         self.copy_directory(
-            &self.config.directory_to_copy.to_string_lossy(),
-            &self.config.target_directory.to_string_lossy(),
+            &self.config.r#in,
+            &self.config.out,
             false)
     }
 
-    fn copy_directory(&self, path: &str, target: &str, inside_link: bool) -> Result<(), Box<dyn Error>> {
+    fn copy_directory(&self, path: &str, target: &str, mut inside_link: bool) -> Result<(), Box<dyn Error>> {
+        // Kinda hacky, but it works
+        if !self.config.no_recursion {
+            inside_link = false;
+        }
+
         let _ = fs::create_dir(target);
 
         for entry in fs::read_dir(path)? {
@@ -64,11 +70,18 @@ impl CopyManager {
                 // Since symlinks act as normal directories/folders I added the or operation to the inside_link
                 self.copy_directory(&path.to_string_lossy(), &target_path, inside_link || is_symlink)?;
             } else if is_lnk && inside_link {
-                fs::copy(path, target_path)?;
+                match fs::copy(&path, target_path) {
+                    Ok(_) => (),
+                    Err(e) => eprintln!("Failed to copy link {:?}, because {}", path, e)
+                };
             } else if is_lnk && !inside_link {
-                self.copy_lnk(&path.to_string_lossy(), &target_path)?;
+                self.copy_lnk(&path.to_string_lossy(), &target_path)
+                    .unwrap_or_else(|e| eprint!("Error while copying link contents for {}: {:?}", path.to_string_lossy(), e));
             } else if path.is_file() {
-                fs::copy(path, target_path)?;
+                match fs::copy(&path, target_path) {
+                    Ok(_) => (),
+                    Err(e) => eprintln!("Failed to copy file {:?}, because {}", path, e)
+                };
             } else if is_symlink {
                 eprintln!("Skipped symbiotic link at {}", path.to_string_lossy());
             } else {
@@ -83,12 +96,20 @@ impl CopyManager {
         let link_path = PathBuf::from(link_path);
 
         // I'll use unwrap because lnk::Error doesn't implement std::error::Error :facepalm:
-        let referred_entry_path = ShellLink::open(link_path.clone()).unwrap()
-            .link_info()
-            .clone().unwrap()
-            .local_base_path()
+        let referred_entry_path = {
+            let shl_link = match ShellLink::open(link_path.clone()) {
+                Ok(s) => s,
+                Err(e) => return Err(Box::new(LnkError::Container(e)))
+            };
+
+            let lnk_info = match shl_link.link_info().clone() {
+                Some(s) => s,
+                None => return Err(Box::new(LnkError::Description("No .lnk info".to_string())))
+            };
+            lnk_info.local_base_path()
             .clone()
-            .unwrap();
+            .unwrap()
+        };
 
         let referred_entry = PathBuf::from(referred_entry_path);
         let referred_entry_name = referred_entry.file_name().unwrap();
@@ -99,7 +120,7 @@ impl CopyManager {
         } else if referred_entry.is_file() || referred_entry.is_symlink() {
             fs::copy(referred_entry.to_string_lossy().to_string(), target_path)?;
         } else {
-            eprintln!("Shortcut (.lnk) points to unrecognised element {}", referred_entry.to_string_lossy());
+            eprintln!("Shortcut {} points to unrecognised element {}", link_path.to_string_lossy(), referred_entry.to_string_lossy());
         }
 
         Ok(())
