@@ -44,7 +44,7 @@ impl CopyManager {
 
     fn copy_directory(&self, path: &str, target: &str, mut inside_link: bool) -> Result<(), Box<dyn Error>> {
         // Kinda hacky, but it works
-        if !self.config.no_recursive {
+        if !self.config.no_recursion {
             inside_link = false;
         }
 

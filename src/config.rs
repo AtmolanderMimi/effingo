@@ -14,7 +14,7 @@ pub struct Config {
 
     /// Option to only search one link down
     #[arg(short, long, default_value_t=false)]
-    pub no_recursive: bool,
+    pub no_recursion: bool,
 }
 
 ///// Holds the data that dictate how the program will run
