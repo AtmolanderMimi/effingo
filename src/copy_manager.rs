@@ -70,12 +70,18 @@ impl CopyManager {
                 // Since symlinks act as normal directories/folders I added the or operation to the inside_link
                 self.copy_directory(&path.to_string_lossy(), &target_path, inside_link || is_symlink)?;
             } else if is_lnk && inside_link {
-                fs::copy(path, target_path)?;
+                match fs::copy(&path, target_path) {
+                    Ok(_) => (),
+                    Err(e) => eprintln!("Failed to copy link {:?}, because {}", path, e)
+                };
             } else if is_lnk && !inside_link {
                 self.copy_lnk(&path.to_string_lossy(), &target_path)
                     .unwrap_or_else(|e| eprint!("Error while copying link contents for {}: {:?}", path.to_string_lossy(), e));
             } else if path.is_file() {
-                fs::copy(path, target_path)?;
+                match fs::copy(&path, target_path) {
+                    Ok(_) => (),
+                    Err(e) => eprintln!("Failed to copy file {:?}, because {}", path, e)
+                };
             } else if is_symlink {
                 eprintln!("Skipped symbiotic link at {}", path.to_string_lossy());
             } else {
